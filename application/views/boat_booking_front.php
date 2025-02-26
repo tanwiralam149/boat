@@ -33,7 +33,7 @@
                               <h5 class="card-title">Booking Detail</h5>
                               <form class="needs-validation" novalidate accept-charset="utf-8">
 
-                              <input type="text" name="hidden_availability_id" id="hidden_availability_id" />
+                              <input type="hidden" name="hidden_availability_id" id="hidden_availability_id" />
                                  <div class="row g-2">
                                     <div class="mb-3 col-md-3">
                                        <label for="boat_id" class="form-label">Select Boat</label>
@@ -79,33 +79,7 @@
            $( "#booking_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
          } );
       </script>
-      <script>
-         // $(document).ready(function() {
-         //   $('#booking_start_time').timepicker({
-         //       timeFormat: 'H:mm p',
-         //       interval: 30,
-         //       minTime: '6:00am',
-         //       maxTime: '11:30pm',
-         //       defaultTime: '',
-         //       startTime: '6:00am',
-         //       dynamic: false,
-         //       dropdown: true,
-         //       scrollbar: true
-         //   });
-         
-         //   $('#booking_end_time').timepicker({
-         //       timeFormat: 'H:mm p',
-         //       interval: 30,
-         //       minTime: '6:00am',
-         //       maxTime: '11:30pm',
-         //       defaultTime: '',
-         //       startTime: '6:00am',
-         //       dynamic: false,
-         //       dropdown: true,
-         //       scrollbar: true
-         //   });
-         // });
-      </script>
+
 
       <script>
           $(document).ready(function(){
@@ -120,10 +94,12 @@
              function getAvailabilityTime(){
                   $('#booking_start_time').val('');
                   $('#booking_end_time').val('');
-                
+
+                  // Manually destroy the timepicker instances
+                  $('#booking_start_time').timepicker('destroy');
+                  $('#booking_end_time').timepicker('destroy');
                   var bookingDate=$("#booking_date").val();
                   var boatId=$("#boat_id").val();
-                 
                   $.ajax({
                       url:"<?php echo base_url('check-availability-type-time-acc-to-date'); ?>",
                       type:'POST',
@@ -133,30 +109,32 @@
 
                         console.log(response);
                         if (response.success) {
-
                            $("#hidden_availability_id").val(response.data[0].id);
                           
-                           $('#booking_start_time').timepicker('remove'); 
                            $('#booking_start_time').timepicker({
                                  timeFormat: 'HH:mm',
                                  minTime: response.data[0].start_time, // Set the minimum time
                                  maxTime: response.data[response.data.length - 1].end_time, // Set the maximum time
                                  step: 30 // Set the step to 30 minutes (0.5 hour)
                            });  
-                           $('#booking_end_time').timepicker('remove'); 
+                          
                            $('#booking_end_time').timepicker({
                                  timeFormat: 'HH:mm',
                                  minTime: response.data[0].start_time, // Set the minimum time
                                  maxTime: response.data[response.data.length - 1].end_time, // Set the maximum time
                                  step: 30 // Set the step to 30 minutes (0.5 hour)
-                           });  
-
+                           }); 
                         } 
                      } 
-                  });
-                 
-            }
-           
+                  }); 
+               }
+
+               $("#booking_end_time").on('change',function(){
+                    var booking_start_time=$("#booking_start_time").val();
+                    var booking_end_time=$("#booking_end_time").val();
+                    alert(booking_start_time);
+                    alert(booking_end_time);
+               });
           });
       </script>   
    </body>
