@@ -2,7 +2,7 @@
 
 <div class="content">
                 <div class="container">
-                <a href="<?php echo base_url('add') ?>" class="btn btn-primary" style="float:right;"> <i class="fas fa-plus"></i> Add Boat </a>
+                <a href="<?php echo base_url('add') ?>" class="btn btn-primary btn-sm" style="float:right;"> <i class="fas fa-plus"></i> Add Boat </a>
                     <div class="page-title">
                         <h3>Boat Lists</h3>
                    
@@ -43,14 +43,14 @@
                                                           
 
                                                                <?php if ($boat['status'] == 1) { ?>
-                                                                   <a data-boat-id="<?php echo $boat['boat_id']; ?>" data-current-status="<?php echo $boat['status']; ?>" class="toggle-status btn btn-danger ">Inactive</a>
+                                                                   <a data-boat-id="<?php echo $boat['boat_id']; ?>" data-current-status="<?php echo $boat['status']; ?>" class="toggle-status btn btn-danger btn-sm">Inactive</a>
                                                                 <?php } elseif ($boat['status'] == 0) { ?>
-                                                                    <a data-boat-id="<?php echo $boat['boat_id']; ?>" data-current-status="<?php echo $boat['status']; ?>" class="toggle-status btn btn-success">Active</a>
+                                                                    <a data-boat-id="<?php echo $boat['boat_id']; ?>" data-current-status="<?php echo $boat['status']; ?>" class="toggle-status btn btn-success btn-sm">Active</a>
                                                                 <?php } ?>
                                                         </td>
                                     <td class="actions" rowspan="<?php echo count($boat['availabilities']) ?: 1; ?>">
-                                        <a href="<?php echo site_url('edit/'.$boat['boat_id']); ?>" class="btn btn-info">Edit</a>
-                                        <a href="<?php echo site_url('delete/'.$boat['boat_id']); ?>" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                                        <a href="<?php echo site_url('edit/'.$boat['boat_id']); ?>" class="btn btn-info btn-sm"><i class="fas fa-edit"></i></a>
+                                        <a href="<?php echo site_url('delete/'.$boat['boat_id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')"><i class="fas fa-trash"></i></a>     
                                     </td>
                                 <?php } ?>
                                

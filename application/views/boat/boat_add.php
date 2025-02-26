@@ -1,7 +1,7 @@
 <!-- jQuery Timepicker CSS -->
 <div class="content">
    <div class="container">
-   <a href="<?php echo base_url('list') ?>" class="btn btn-primary" style="float:right;"> <i class="fas fa-list"></i>  Boat List</a>
+   <a href="<?php echo base_url('list') ?>" class="btn btn-primary btn-sm" style="float:right;"> <i class="fas fa-list"></i>  Boat List</a>
       <div class="page-title">
          <h3>Boat / Add</h3>
        
@@ -40,7 +40,7 @@
                         </div>
                         <div class="mb-3 col-md-3">
                            <label for="end_time" class="form-label"></label>
-                           <button type="button" class="btn btn-success" id="add-availability" style="margin-top:30px;">Add More </button><br><br>
+                           <button type="button" class="btn btn-success btn-sm" id="add-availability" style="margin-top:35px;"><i class="fas fa-plus"></i> </button><br><br>
                         </div>
                      </div>
 
@@ -49,7 +49,7 @@
                      <div class="row g-2" style="margin-top:30px;">
                         <div class="mb-3 col-md-9"></div>
                         <div class="mb-3 col-md-2">
-                           <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Submit</button>
+                           <button type="submit" class="btn btn-primary"> Submit</button>
                         </div>
                         
                      </div>
@@ -117,7 +117,7 @@
                         <div class="mb-3 col-md-3">
                         <label for="end_time" class="form-label"></label>
                         
-                        <button type="button" class="btn btn-danger remove-availability" data-id="${counter}"  style="margin-top:30px;">X </button>
+                        <button type="button" class="btn btn-danger btn-sm remove-availability" data-id="${counter}"  style="margin-top:30px;"><i class="fas fa-trash"></i> </button>
                         </div>
                          </div>
         `;
