@@ -28,25 +28,23 @@
                   <div class="row">
                      <div class="col-lg-12">
                         <div class="card">
-                           <div class="card-header">Boat Booking</div>
+                           <!-- <div class="card-header">Boat Booking</div> -->
                            <div class="card-body">
                               <h5 class="card-title">Booking Detail</h5>
-                              <form class="needs-validation" novalidate accept-charset="utf-8">
-
-                              <input type="hidden" name="hidden_availability_id" id="hidden_availability_id" />
+                              <form  id="checkAvailabilityForm" >
+                                 <input type="hidden" name="hidden_availability_id" id="hidden_availability_id" />
                                  <div class="row g-2">
                                     <div class="mb-3 col-md-3">
                                        <label for="boat_id" class="form-label">Select Boat</label>
                                        <select name="boat_id" id="boat_id" class="form-select" required>
                                           <option value="" >Select boat...</option>
                                           <?php foreach($boats as $boat){ ?>
-                                              <option value="<?php echo $boat['id'];?>"><?php echo $boat['boat_name'];?></option>
+                                          <option value="<?php echo $boat['id'];?>"><?php echo $boat['boat_name'];?></option>
                                           <?php } ?>
-                                        
                                        </select>
                                     </div>
                                     <div class="mb-3 col-md-3">
-                                       <label for="email" class="form-label">Booking Date</label>
+                                       <label for="booking_date" class="form-label">Booking Date</label>
                                        <input type="text" id="booking_date" class="form-control" name="booking_date"  required>
                                     </div>
                                     <div class="mb-3 col-md-3">
@@ -58,9 +56,38 @@
                                        <input type="text" class="form-control" name="booking_end_time" id="booking_end_time" required>
                                     </div>
                                  </div>
-                                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Search</button>
+                                 <div id="availabilityMessage"></div>
+                                 <!-- <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Search</button> -->
+                                 <button type="button" class="btn btn-primary" id="checkBoatAvailability" style="float:right;"> <i class="fas fa-search"></i>Search </button>
                               </form>
                            </div>
+
+                           <!-- <div class="card-header">Customer Detail</div> -->
+                        <div class="card-body" id="customer_div" style="display:none;">
+                           <h5 class="card-title">Customer Detail</h5>
+                              <form  id="addCustomerBookingForm" >
+                               
+                                 <div class="row g-2">
+                                  
+                                    <div class="mb-3 col-md-4">
+                                       <label for="customer_name" class="form-label">Name</label>
+                                       <input type="text" id="customer_name" class="form-control" name="customer_name" placeholder="Enter customer name"  required>
+                                    </div>
+                                    <div class="mb-3 col-md-4">
+                                       <label for="customer_email" class="form-label">Email</label>
+                                       <input type="text" class="form-control" name="customer_email" id="customer_email" placeholder="Enter customer email"  required>
+                                    </div>
+                                    <div class="mb-3 col-md-4">
+                                       <label for="customer_phone" class="form-label">Phoneno </label>
+                                       <input type="text" class="form-control" name="customer_phone" id="customer_phone" placeholder="Enter customer phone" required>
+                                    </div>
+                                    
+                                 </div>
+                                 <div id="customerMessage"></div>
+                              
+                                 <button type="button" class="btn btn-primary" id="addCustomerBooking" style="float:right;">  Submit </button>
+                              </form>
+                           </div>   
                         </div>
                      </div>
                   </div>
@@ -79,63 +106,143 @@
            $( "#booking_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
          } );
       </script>
-
+      <script>
+         $(document).ready(function(){
+          
+           $("#booking_date").on('change',function(){
+              getAvailabilityTime();
+           });
+           $("#boat_id").on('change',function(){
+              getAvailabilityTime();
+           });
+         
+            function getAvailabilityTime(){
+                 $('#booking_start_time').val('');
+                 $('#booking_end_time').val('');
+         
+                 // Manually destroy the timepicker instances
+                 $('#booking_start_time').timepicker('destroy');
+                 $('#booking_end_time').timepicker('destroy');
+                 var bookingDate=$("#booking_date").val();
+                 var boatId=$("#boat_id").val();
+                 $.ajax({
+                     url:"<?php echo base_url('check-availability-type-time-acc-to-date'); ?>",
+                     type:'POST',
+                     dataType: "json",
+                     data:{bookingDate:bookingDate,boatId:boatId},
+                     success: function(response) {
+         
+                       console.log(response);
+                       if (response.success) {
+                          $("#hidden_availability_id").val(response.data[0].id);
+                         
+                          $('#booking_start_time').timepicker({
+                                timeFormat: 'H:mm p',
+                                minTime: response.data[0].start_time, // Set the minimum time
+                                maxTime: response.data[0].end_time, // Set the maximum time
+                                step: 30 // Set the step to 30 minutes (0.5 hour)
+                          });  
+                         
+                          $('#booking_end_time').timepicker({
+                                timeFormat: 'H:mm p',
+                                minTime: response.data[0].start_time, // Set the minimum time
+                                maxTime: response.data[0].end_time, // Set the maximum time
+                                step: 30 // Set the step to 30 minutes (0.5 hour)
+                          }); 
+                       } 
+                    } 
+                 }); 
+              }
+         
+         });
+      </script>  
+      <script>
+         $("#checkBoatAvailability").click(function() {
+             var boat_id = $("#boat_id").val();
+             var booking_date = $("#booking_date").val();
+             var start_time = $("#booking_start_time").val();
+             var end_time = $("#booking_end_time").val();
+         
+             if (boat_id && booking_date && start_time && end_time) {
+                 $.ajax({
+                     type: "POST",
+                     url: "<?= base_url('booking/check_boat_availability'); ?>",
+                     data: { boat_id: boat_id, booking_date: booking_date, start_time: start_time, end_time: end_time },
+                     dataType: "json",
+                     success: function(response) {
+                         if (response.success) {
+                              $("#customer_div").show();
+                             $("#availabilityMessage").html("<span style='color: green;'>" + response.message + "</span>");
+                         } else {
+                           $("#customer_div").hide();
+                             $("#availabilityMessage").html("<span style='color: red;'>" + response.message + "</span>");
+                         }
+                     }
+                 });
+             } else {
+                 alert("Please fill all fields.");
+             }
+         });
+      </script>
 
       <script>
-          $(document).ready(function(){
-           
-            $("#booking_date").on('change',function(){
-               getAvailabilityTime();
-            });
-            $("#boat_id").on('change',function(){
-               getAvailabilityTime();
-            });
+         $("#addCustomerBooking").click(function(e){
+             e.preventDefault();
+alert('Hi');
+             var boat_id = $("#boat_id").val();
+             var booking_date = $("#booking_date").val();
+             var start_time = $("#booking_start_time").val();
+             var end_time = $("#booking_end_time").val();
 
-             function getAvailabilityTime(){
-                  $('#booking_start_time').val('');
-                  $('#booking_end_time').val('');
+             var name=$("#customer_name").val();
+             var email=$("#customer_email").val();
+             var phone=$("#customer_phone").val();
+               // Validate required fields
+            if (!name || !email || !phone) {
+               alert("Please fill in all customer details.");
+               return; // Stop execution if validation fails
+            }
 
-                  // Manually destroy the timepicker instances
-                  $('#booking_start_time').timepicker('destroy');
-                  $('#booking_end_time').timepicker('destroy');
-                  var bookingDate=$("#booking_date").val();
-                  var boatId=$("#boat_id").val();
-                  $.ajax({
-                      url:"<?php echo base_url('check-availability-type-time-acc-to-date'); ?>",
-                      type:'POST',
-                      dataType: "json",
-                      data:{bookingDate:bookingDate,boatId:boatId},
-                      success: function(response) {
+            if (!boat_id || !booking_date || !start_time || !end_time) {
+               alert("Please ensure all booking details are selected.");
+               return; // Stop execution if validation fails
+            }
+
+            // if(name && email && phone){
+                 $.ajax({
+                     url:"<?php echo base_url('booking/create_boat_booking')?>",
+                     type:"POST",
+                     data:{
+                        name:name,
+                        email:email,
+                        phone:phone,
+                        boat_id:boat_id,
+                        booking_date:booking_date,
+                        start_time:start_time,
+                        end_time:end_time,
+                        hidden_availability_id:hidden_availability_id
+                     },
+                     dataType: "json",
+                     success:function(response){
 
                         console.log(response);
                         if (response.success) {
-                           $("#hidden_availability_id").val(response.data[0].id);
-                          
-                           $('#booking_start_time').timepicker({
-                                 timeFormat: 'HH:mm',
-                                 minTime: response.data[0].start_time, // Set the minimum time
-                                 maxTime: response.data[response.data.length - 1].end_time, // Set the maximum time
-                                 step: 30 // Set the step to 30 minutes (0.5 hour)
-                           });  
-                          
-                           $('#booking_end_time').timepicker({
-                                 timeFormat: 'HH:mm',
-                                 minTime: response.data[0].start_time, // Set the minimum time
-                                 maxTime: response.data[response.data.length - 1].end_time, // Set the maximum time
-                                 step: 30 // Set the step to 30 minutes (0.5 hour)
-                           }); 
-                        } 
-                     } 
-                  }); 
-               }
-
-               $("#booking_end_time").on('change',function(){
-                    var booking_start_time=$("#booking_start_time").val();
-                    var booking_end_time=$("#booking_end_time").val();
-                    alert(booking_start_time);
-                    alert(booking_end_time);
-               });
-          });
-      </script>   
+                              $("#customer_div").hide();
+                              $("#customerMessage").html("<span style='color: green;'>" + response.message + "</span>");
+                         } else {
+                             $("#customer_div").show();
+                             $("#customerMessage").html("<span style='color: red;'>" + response.message + "</span>");
+                         }
+                     }, error: function(xhr, status, error) {
+            console.error("AJAX Error: " + status + " - " + error);
+            $("#customerMessage").html("<span style='color: red;'>An error occurred. Please try again.</span>");
+        }
+                  });
+            //  }else{
+            //    alert('please filled customer detail');
+            //  }            
+         
+         });
+      </script>
    </body>
 </html>

@@ -9,7 +9,7 @@ $route['dashboard'] = 'DashboardController';
 $route['logout'] = 'DashboardController/logout';
 
 $route['add']='BoatController/boat_add';
-$route['boat/store']='BoatController/store';
+$route['store']='BoatController/store';
 $route['list']='BoatController/boat_list';
 $route['edit/(:any)']='BoatController/edit/$1';
 $route['delete/(:any)']='BoatController/boat_delete/$1';

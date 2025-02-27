@@ -1,10 +1,9 @@
 <!-- jQuery Timepicker CSS -->
 <div class="content">
    <div class="container">
-   <a href="<?php echo base_url('list') ?>" class="btn btn-primary btn-sm" style="float:right;"> <i class="fas fa-list"></i>  Boat List</a>
+      <a href="<?php echo base_url('list') ?>" class="btn btn-primary btn-sm" style="float:right;"> <i class="fas fa-list"></i>  Boat List</a>
       <div class="page-title">
          <h3>Boat / Add</h3>
-       
       </div>
       <div class="row">
          <div class="col-lg-12">
@@ -12,7 +11,7 @@
                <div class="card-header">Boat Detail</div>
                <div class="card-body">
                   <!-- <h5 class="card-title">Example form with inline field validations</h5> -->
-                  <form method="POST" action="<?php echo base_url("boat/store") ?>" class="" >
+                  <form method="POST" action="<?php echo base_url("store") ?>" class="" >
                      <div class="row g-2">
                         <div class="mb-3 col-md-6">
                            <label for="boat_name" class="form-label">Boat Name</label>
@@ -43,7 +42,6 @@
                            <button type="button" class="btn btn-success btn-sm" id="add-availability" style="margin-top:35px;"><i class="fas fa-plus"></i> </button><br><br>
                         </div>
                      </div>
-
                      <div class="row g-2" id="append_div"></div>
                      <input type="hidden" id="counter" name="counter" />
                      <div class="row g-2" style="margin-top:30px;">
@@ -51,7 +49,6 @@
                         <div class="mb-3 col-md-2">
                            <button type="submit" class="btn btn-primary"> Submit</button>
                         </div>
-                        
                      </div>
                   </form>
                </div>
@@ -95,7 +92,9 @@
     var counter=0;
      $("#add-availability").click(function(){
         counter++;
-        let newAvailability=
+       // alert(counter);
+        if(counter < 2){
+         let newAvailability=
         `            <div class="row" id="add_${counter}">
                      <div class="mb-3 col-md-3">
                            <label for="availability_type" class="form-label">Select Availability</label>
@@ -147,11 +146,12 @@
                 dropdown: true,
                 scrollbar: true
             });
+        }
        
      });
    
    
-
+   
    
         // $(document).on('click', '.remove-availability', function() {
         //     $(this).parent().remove();

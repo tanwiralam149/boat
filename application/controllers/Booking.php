@@ -28,4 +28,70 @@ class Booking extends CI_Controller {
             echo json_encode(['data'=>[],'success'=>false,'message'=>'Data not found.','availability_type'=>$availability_type,'date'=>$booking_date,'day_of_week'=>$day_of_week]);
         }
     }
+
+    public function check_boat_availability() {
+        
+       // print_r($this->input->post());
+
+        $boat_id = $this->input->post('boat_id');
+        $booking_date = $this->input->post('booking_date');
+        $start_time = date('H:i',strtotime($this->input->post('start_time')));
+        $end_time = date('H:i',strtotime($this->input->post('end_time')));
+
+        // Convert times to timestamps
+        $start = strtotime($start_time);
+        $end = strtotime($end_time);
+        // Calculate the difference in seconds
+        $difference = $end - $start;
+        // Convert seconds to hours and minutes
+        $hours = floor($difference / 3600); // Total hours
+        $minutes = floor(($difference % 3600) / 60); // Remaining minutes
+        $hours_minutes='';
+         
+        if($hours < 2 ){
+            echo json_encode(['success' => false, 'message' => 'Minimum 2-hour booking duration ']);
+        }else{
+                  
+            $is_available = $this->Booking_model->check_boat_availability($boat_id, $booking_date, $start_time, $end_time);
+
+            if ($is_available) {
+                echo json_encode(['success' =>true, 'message' => 'Boat is available for booking.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Boat is already booked or unavailable at this time.']);
+            }
+        }
+    }
+
+
+    /* CREATE BOAT BOOKING FOR CUSTOMER  */
+
+    public function create_boat_booking(){
+        
+      $name=$this->input->post('name');
+      $email=$this->input->post('email');
+      $phone=$this->input->post('phone');
+      $boat_id=$this->input->post('boat_id');
+      $booking_date=$this->input->post('booking_date');
+      $start_time=$this->input->post('start_time');
+      $end_time=$this->input->post('end_time');
+      $availability_id=$this->input->post('end_time');
+        
+       $result=$this->Booking_model->create_boat_booking([
+                'customer_name' =>$name,
+                'customer_email' =>$email,
+                'customer_phone' =>$phone,
+                'boat_id' =>$boat_id,
+                'booking_date' =>date('Y-m-d',strtotime($booking_date)),
+                'availability_id' =>$availability_id,
+                'booking_start_time' =>$start_time,
+                'booking_end_time' =>$end_time,
+        ]);
+
+        if ($result) {
+            echo json_encode(['success' => true, 'message' => 'Booking created successfully.']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Booking creation failed']);
+        }
+       
+    }
 }
