@@ -19,9 +19,16 @@ CREATE TABLE `boat_availability` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `boat_availability` (`id`, `boat_id`, `availability_type`, `start_time`, `end_time`) VALUES
-(1,	1,	'weekdays',	'09:00:00',	'12:00:00'),
-(2,	1,	'weekdays',	'14:00:00',	'18:00:00'),
-(3,	2,	'weekdays',	'10:00:00',	'13:00:00');
+(8,	1,	'weekdays',	'09:00:00',	'20:00:00'),
+(7,	1,	'weekend',	'08:00:00',	'18:00:00'),
+(3,	2,	'weekend',	'10:00:00',	'22:00:00'),
+(4,	2,	'weekdays',	'11:00:00',	'23:00:00'),
+(5,	3,	'weekend',	'06:00:00',	'15:00:00'),
+(6,	3,	'weekdays',	'07:00:00',	'17:00:00'),
+(14,	4,	'weekend',	'06:30:00',	'16:00:00'),
+(13,	4,	'weekdays',	'10:30:00',	'18:00:00'),
+(22,	5,	'weekdays',	'16:00:00',	'20:00:00'),
+(21,	5,	'weekend',	'12:00:00',	'16:00:00');
 
 DROP TABLE IF EXISTS `boat_bookings`;
 CREATE TABLE `boat_bookings` (
@@ -43,8 +50,11 @@ CREATE TABLE `boat_bookings` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `boat_bookings` (`id`, `boat_id`, `customer_name`, `customer_phone`, `customer_email`, `booking_date`, `availability_id`, `booking_start_time`, `booking_end_time`, `booking_status`, `created_at`, `updated_at`) VALUES
-(13,	1,	'John Doe',	'1234567890',	'john@example.com',	'2024-03-01',	1,	'09:00:00',	'12:00:00',	'confirmed',	'2025-02-26 10:03:07',	'2025-02-26 10:03:07'),
-(14,	2,	'Jane Smith',	'9876543210',	'jane@example.com',	'2024-03-05',	3,	'10:00:00',	'13:00:00',	'pending',	'2025-02-26 10:03:07',	'2025-02-26 10:03:07');
+(1,	1,	'Tanwir',	'9955117755',	'tanwir@gmail.com',	'2025-02-27',	8,	'09:00:00',	'11:00:00',	'pending',	'2025-02-27 12:13:06',	'2025-02-27 12:13:06'),
+(2,	1,	'Alam',	'9955117755',	'alam@gmail.com',	'2025-02-27',	8,	'13:00:00',	'15:00:00',	'pending',	'2025-02-27 12:16:13',	'2025-02-27 12:16:13'),
+(3,	2,	'Hussain',	'9955117755',	'hussain@gmail.com',	'2025-02-27',	4,	'14:00:00',	'16:00:00',	'pending',	'2025-02-27 12:17:39',	'2025-02-27 12:17:39'),
+(4,	3,	'Zahid',	'9966332211',	'zahid@gmail.com',	'2025-02-28',	6,	'08:00:00',	'10:00:00',	'pending',	'2025-02-27 12:18:41',	'2025-02-27 12:18:41'),
+(5,	3,	'Zakir',	'8855996633',	'zakir@gmail.com',	'2025-02-28',	6,	'12:00:00',	'14:00:00',	'pending',	'2025-02-27 12:19:31',	'2025-02-27 12:19:31');
 
 DROP TABLE IF EXISTS `boats`;
 CREATE TABLE `boats` (
@@ -57,8 +67,11 @@ CREATE TABLE `boats` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `boats` (`id`, `boat_name`, `status`, `created_at`, `updated_at`) VALUES
-(1,	'Speedboat',	0,	NULL,	NULL),
-(2,	'Yacht',	0,	NULL,	NULL);
+(1,	'Speed Boat',	0,	NULL,	NULL),
+(2,	'Luxury Yacht',	0,	NULL,	NULL),
+(3,	'Fishing Vessel',	0,	NULL,	NULL),
+(4,	'Del Mar',	0,	NULL,	NULL),
+(5,	'Ciao Bella.',	0,	NULL,	NULL);
 
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
@@ -73,4 +86,4 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `name`, `username`, `password`, `status`) VALUES
 (1,	'Admin',	'admin',	'admin',	0);
 
--- 2025-02-26 10:14:49
+-- 2025-02-27 13:08:13

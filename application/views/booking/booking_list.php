@@ -20,7 +20,7 @@
                                                 <th>Booking Date</th>
                                                 <th>Booking Time</th>
                                                 <th>Booking Hours</th>
-                                                <th>Status</th>
+                                                <!-- <th>Status</th> -->
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -53,7 +53,7 @@
                                                 <td><?php echo date('d-m-Y',strtotime($booking['booking_date'])); ?></td>
                                                 <td><?php echo date('h:i A',strtotime($booking['booking_start_time'])); ?> - <?php echo date('h:i A',strtotime($booking['booking_end_time'])); ?> </td>
                                                 <td><strong><?php  echo $hours_minutes; ?></strong></td>
-                                                <td></td>
+                                                <!-- <td></td> -->
                                                 <td><a data-id="<?php echo $booking['booking_id']; ?>" class="btn btn-danger btn-sm deleteBooking">Delete</a></td>
                                             </tr>
                                         <?php }}else{ ?>

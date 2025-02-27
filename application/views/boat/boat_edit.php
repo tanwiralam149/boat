@@ -32,8 +32,8 @@
                      </div>
                      <?php $counter = 1; ?>
                      <?php 
-                     if($boat['availabilities']){
-                       foreach($boat['availabilities'] as $availability){ ?>
+                        if($boat['availabilities']){
+                          foreach($boat['availabilities'] as $availability){ ?>
                      <div class="row g-2" id="add_<?php echo $counter; ?>">
                         <div class="mb-3 col-md-3">
                            <label for="availability_type" class="form-label">Select Availability</label>
@@ -65,9 +65,8 @@
                      <div class="row g-2" style="margin-top:30px;">
                         <div class="mb-3 col-md-9"></div>
                         <div class="mb-3 col-md-2">
-                        <button type="submit" class="btn btn-primary"> Update</button>
+                           <button type="submit" class="btn btn-primary"> Update</button>
                         </div>
-                        
                      </div>
                   </form>
                </div>
@@ -167,19 +166,11 @@
        
      });
    
-   
-   
-   
-        // $(document).on('click', '.remove-availability', function() {
-        //     $(this).parent().remove();
-        // });
-   
-           $(document).on('click', '.remove-availability', function() {
-                let id = $(this).data('id');
-               
-                $('#add_' + id).remove();
-                $("#counter").val(--counter);
-            });
+         $(document).on('click', '.remove-availability', function() {
+               let id = $(this).data('id');
+               $('#add_' + id).remove();
+               $("#counter").val(--counter);
+         });
    });
    
 </script>
