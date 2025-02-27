@@ -35,8 +35,8 @@ class Booking extends CI_Controller {
 
         $boat_id = $this->input->post('boat_id');
         $booking_date = $this->input->post('booking_date');
-        $start_time = date('H:i',strtotime($this->input->post('start_time')));
-        $end_time = date('H:i',strtotime($this->input->post('end_time')));
+        $start_time = $this->input->post('start_time',TRUE);
+        $end_time = $this->input->post('end_time',TRUE);
 
         // Convert times to timestamps
         $start = strtotime($start_time);
@@ -49,15 +49,15 @@ class Booking extends CI_Controller {
         $hours_minutes='';
          
         if($hours < 2 ){
-            echo json_encode(['success' => false, 'message' => 'Minimum 2-hour booking duration ']);
+            echo json_encode(['success' => false, 'message' => 'Minimum 2-hour booking duration ','hours'=>$hours]);
         }else{
                   
             $is_available = $this->Booking_model->check_boat_availability($boat_id, $booking_date, $start_time, $end_time);
 
             if ($is_available) {
-                echo json_encode(['success' =>true, 'message' => 'Boat is available for booking.']);
+                echo json_encode(['success' =>true, 'message' => 'Boat is available for booking.','hours'=>$hours]);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Boat is already booked or unavailable at this time.']);
+                echo json_encode(['success' => false, 'message' => 'Boat is already booked or unavailable at this time.','hours'=>$hours]);
             }
         }
     }
@@ -88,9 +88,11 @@ class Booking extends CI_Controller {
         ]);
 
         if ($result) {
+            $this->session->set_flashdata('success', 'Booking created successfully.');
             echo json_encode(['success' => true, 'message' => 'Booking created successfully.']);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Booking creation failed']);
+            $this->session->set_flashdata('success', 'Booking booking failed.');
+            echo json_encode(['success' => false, 'message' => 'Booking booking failed']);
         }
        
     }

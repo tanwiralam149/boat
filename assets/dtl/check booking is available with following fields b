@@ -1,0 +1,5 @@
+check booking is available with following fields boat_id , select date ,start time , end time from booking table 
+minimum booking time for boat is 2 hours 
+After booking time over for boat availability then next booking allowed after 90 min 
+
+if a boat availability is booking then anothers show cant see that time for booking see accoring to boat availabity start time and end time and booking start time and end time

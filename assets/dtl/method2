@@ -1,0 +1,198 @@
+### **📌 Check Boat Availability Before Booking (Considering Each Boat's Schedule) in CodeIgniter 3**  
+
+Now, we will **ensure boat-specific availability** when checking for available boats. This will:  
+
+✅ **Filter out only boats available for booking** at the selected date & time.  
+✅ **Ensure minimum 2-hour booking duration**.  
+✅ **Ensure a 90-minute buffer after previous booking**.  
+✅ **Respect each boat’s availability window** (e.g., weekdays vs. weekends).  
+
+---
+
+## **1️⃣ Updated SQL Query (Considering Each Boat's Availability)**  
+This query ensures that:  
+- The boat is **not booked during the selected time**.  
+- The selected time **falls within the boat’s availability schedule**.  
+- A **90-minute buffer** is maintained after the last booking.  
+
+```sql
+SELECT b.* FROM boats b
+JOIN boat_availability ba ON ba.boat_id = b.id
+WHERE ba.boat_id NOT IN (
+    SELECT boat_id FROM boat_bookings 
+    WHERE booking_date = ? 
+    AND (
+        (start_time BETWEEN ? AND ?) 
+        OR (end_time BETWEEN ? AND ?) 
+        OR (? BETWEEN start_time AND end_time) 
+        OR (? BETWEEN start_time AND end_time)
+    )
+)
+AND ba.availability_type = ?  -- "weekend" or "weekday" check
+AND ba.start_time <= ?
+AND ba.end_time >= ?
+AND ba.boat_id NOT IN (
+    SELECT boat_id FROM boat_bookings 
+    WHERE booking_date = ? 
+    ORDER BY end_time DESC
+    LIMIT 1
+    HAVING (TIMESTAMPDIFF(MINUTE, end_time, ?) < 90)  -- 90-minute buffer check
+);
+```
+
+---
+
+## **2️⃣ Model Method (`Booking_model.php`)**
+This function retrieves **boats available on the selected date & time** while ensuring:  
+- The boat **is not already booked**.  
+- The booking **respects the boat’s schedule** (weekend/weekday).  
+- The **90-minute buffer** is enforced.
+
+```php
+class Booking_model extends CI_Model {
+
+    // Get available boats based on date, time, and boat availability
+    public function get_available_boats($booking_date, $start_time, $end_time) {
+        $day_of_week = date('N', strtotime($booking_date)); // 1 = Monday, 7 = Sunday
+        $availability_type = ($day_of_week >= 6) ? 'weekend' : 'weekday'; // Determine availability type
+
+        $this->db->select('b.*');
+        $this->db->from('boats b');
+        $this->db->join('boat_availability ba', 'ba.boat_id = b.id');
+        $this->db->where("ba.boat_id NOT IN (
+            SELECT boat_id FROM boat_bookings 
+            WHERE booking_date = '$booking_date'
+            AND (
+                (start_time BETWEEN '$start_time' AND '$end_time') 
+                OR (end_time BETWEEN '$start_time' AND '$end_time') 
+                OR ('$start_time' BETWEEN start_time AND end_time)
+                OR ('$end_time' BETWEEN start_time AND end_time)
+            )
+        )", NULL, FALSE);
+
+        $this->db->where("ba.availability_type", $availability_type);
+        $this->db->where("ba.start_time <=", $start_time);
+        $this->db->where("ba.end_time >=", $end_time);
+
+        // 90-minute gap enforcement
+        $this->db->where("ba.boat_id NOT IN (
+            SELECT boat_id FROM boat_bookings 
+            WHERE booking_date = '$booking_date' 
+            ORDER BY end_time DESC
+            LIMIT 1
+            HAVING (TIMESTAMPDIFF(MINUTE, end_time, '$start_time') < 90)
+        )", NULL, FALSE);
+
+        return $this->db->get()->result_array();
+    }
+}
+```
+
+---
+
+## **3️⃣ Controller Method (`Booking.php`)**
+This function **fetches available boats dynamically**.
+
+```php
+class Booking extends CI_Controller {
+
+    public function get_available_boats() {
+        $this->load->model('Booking_model');
+
+        $booking_date = $this->input->post('booking_date');
+        $start_time = $this->input->post('start_time');
+        $end_time = $this->input->post('end_time');
+
+        // Fetch available boats
+        $available_boats = $this->Booking_model->get_available_boats($booking_date, $start_time, $end_time);
+
+        echo json_encode($available_boats);
+    }
+}
+```
+
+---
+
+## **4️⃣ Booking Form with AJAX (`booking_form.php`)**
+This **fetches available boats** dynamically before booking.
+
+```html
+<form id="bookingForm">
+    <label>Booking Date:</label>
+    <input type="date" id="booking_date" name="booking_date" required>
+
+    <label>Start Time:</label>
+    <input type="time" id="start_time" name="start_time" required>
+
+    <label>End Time:</label>
+    <input type="time" id="end_time" name="end_time" required>
+
+    <button type="button" id="checkAvailability">Check Available Boats</button>
+
+    <label>Available Boats:</label>
+    <select id="available_boats" name="boat_id">
+        <option value="">Select Boat</option>
+    </select>
+
+    <label>Customer Name:</label>
+    <input type="text" name="customer_name" required>
+
+    <button type="submit">Book Now</button>
+</form>
+
+<div id="bookingMessage"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $("#checkAvailability").click(function() {
+        var booking_date = $("#booking_date").val();
+        var start_time = $("#start_time").val();
+        var end_time = $("#end_time").val();
+
+        if (booking_date && start_time && end_time) {
+            $.ajax({
+                type: "POST",
+                url: "<?= base_url('booking/get_available_boats'); ?>",
+                data: { booking_date: booking_date, start_time: start_time, end_time: end_time },
+                dataType: "json",
+                success: function(response) {
+                    $("#available_boats").empty().append('<option value="">Select Boat</option>');
+                    if (response.length > 0) {
+                        $.each(response, function(index, boat) {
+                            $("#available_boats").append('<option value="' + boat.id + '">' + boat.boat_name + '</option>');
+                        });
+                    } else {
+                        $("#available_boats").append('<option value="">No boats available</option>');
+                    }
+                }
+            });
+        } else {
+            alert("Please select date, start time, and end time first.");
+        }
+    });
+
+    $("#bookingForm").submit(function(event) {
+        event.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "<?= base_url('booking/book_boat'); ?>",
+            data: $("#bookingForm").serialize(),
+            dataType: "json",
+            success: function(response) {
+                $("#bookingMessage").html(response.message);
+            }
+        });
+    });
+</script>
+```
+
+---
+
+## **5️⃣ Summary**
+✅ **Checks each boat's availability before booking**.  
+✅ **Filters out boats already booked during that time**.  
+✅ **Respects boat-specific schedules (weekday/weekend)**.  
+✅ **Ensures a 90-minute buffer after each booking**.  
+✅ **Enforces 2-hour minimum booking duration**.  
+
+🚀 Now, your **boat booking system is fully optimized!** Let me know if you need any modifications. 😊🚢

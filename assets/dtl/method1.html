@@ -1,0 +1,181 @@
+### **📌 Boat Booking Availability Check in CodeIgniter 3**  
+
+We will implement a function to **check boat availability** before inserting a booking. The logic will ensure:  
+
+✅ **Minimum booking time is 2 hours**.  
+✅ **Next booking can only be made after 90 minutes of the last booking**.  
+✅ **Overlapping bookings are not allowed** for the same boat.  
+✅ **Boat availability constraints are respected** (i.e., start & end times).  
+
+---
+
+## **1️⃣ SQL Query to Check Availability**
+This query ensures that:  
+- The boat **does not have an overlapping booking** at the selected time.  
+- The **minimum booking duration is 2 hours**.  
+- The **next booking can only be made after 90 minutes of the last booking**.
+
+```sql
+SELECT * FROM boat_bookings 
+WHERE boat_id = ? 
+AND booking_date = ? 
+AND (
+    (start_time BETWEEN ? AND ?) 
+    OR (end_time BETWEEN ? AND ?) 
+    OR (? BETWEEN start_time AND end_time)
+    OR (? BETWEEN start_time AND end_time)
+);
+```
+
+---
+
+## **2️⃣ Model Function to Check Availability**
+Modify `Booking_model.php` to check if the **boat is available** before booking.
+
+```php
+class Booking_model extends CI_Model {
+
+    // Check if the boat is available for booking
+    public function is_boat_available($boat_id, $booking_date, $start_time, $end_time) {
+        // Minimum booking time: 2 hours
+        $min_booking_time = 2 * 60 * 60; // 2 hours in seconds
+        $selected_duration = strtotime($end_time) - strtotime($start_time);
+
+        if ($selected_duration < $min_booking_time) {
+            return "Minimum booking duration is 2 hours.";
+        }
+
+        // Check if there's an existing booking that overlaps with the requested time
+        $this->db->where('boat_id', $boat_id);
+        $this->db->where('booking_date', $booking_date);
+        $this->db->where("
+            (start_time BETWEEN '$start_time' AND '$end_time') 
+            OR (end_time BETWEEN '$start_time' AND '$end_time') 
+            OR ('$start_time' BETWEEN start_time AND end_time)
+            OR ('$end_time' BETWEEN start_time AND end_time)
+        ");
+
+        $query = $this->db->get('boat_bookings');
+
+        if ($query->num_rows() > 0) {
+            return "This time slot is already booked.";
+        }
+
+        // Check if the last booking allows a 90-minute buffer
+        $this->db->where('boat_id', $boat_id);
+        $this->db->where('booking_date', $booking_date);
+        $this->db->order_by('end_time', 'DESC');
+        $this->db->limit(1);
+        $last_booking = $this->db->get('boat_bookings')->row();
+
+        if ($last_booking) {
+            $last_end_time = strtotime($last_booking->end_time);
+            $new_start_time = strtotime($start_time);
+
+            // Ensure 90 minutes buffer
+            if (($new_start_time - $last_end_time) < (90 * 60)) {
+                return "Next booking must be at least 90 minutes after the previous booking.";
+            }
+        }
+
+        return true; // Boat is available
+    }
+}
+```
+
+---
+
+## **3️⃣ Controller Method (`Booking.php`)**
+Modify `Booking.php` to check availability before inserting a booking.
+
+```php
+class Booking extends CI_Controller {
+
+    public function book_boat() {
+        $this->load->model('Booking_model');
+
+        $boat_id = $this->input->post('boat_id');
+        $booking_date = $this->input->post('booking_date');
+        $start_time = $this->input->post('start_time');
+        $end_time = $this->input->post('end_time');
+
+        // Check if the boat is available
+        $availability_status = $this->Booking_model->is_boat_available($boat_id, $booking_date, $start_time, $end_time);
+
+        if ($availability_status !== true) {
+            echo json_encode(['status' => 'error', 'message' => $availability_status]);
+            return;
+        }
+
+        // Insert booking
+        $data = [
+            'boat_id' => $boat_id,
+            'customer_name' => $this->input->post('customer_name'),
+            'customer_phone' => $this->input->post('customer_phone'),
+            'customer_email' => $this->input->post('customer_email'),
+            'booking_date' => $booking_date,
+            'availability_id' => $this->input->post('availability_id'),
+            'start_time' => $start_time,
+            'end_time' => $end_time,
+            'status' => 'pending'
+        ];
+
+        $this->db->insert('boat_bookings', $data);
+        echo json_encode(['status' => 'success', 'message' => 'Booking confirmed.']);
+    }
+}
+```
+
+---
+
+## **4️⃣ AJAX-Based Booking Form (`booking_form.php`)**
+This form will **send booking details to the controller** via AJAX.
+
+```html
+<form id="bookingForm">
+    <label>Boat:</label>
+    <select name="boat_id">
+        <option value="1">Speedboat</option>
+        <option value="2">Yacht</option>
+    </select>
+
+    <label>Booking Date:</label>
+    <input type="date" name="booking_date" required>
+
+    <label>Start Time:</label>
+    <input type="time" name="start_time" required>
+
+    <label>End Time:</label>
+    <input type="time" name="end_time" required>
+
+    <button type="submit">Book Now</button>
+</form>
+
+<div id="bookingMessage"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $("#bookingForm").submit(function(event) {
+        event.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "<?= base_url('booking/book_boat'); ?>",
+            data: $("#bookingForm").serialize(),
+            dataType: "json",
+            success: function(response) {
+                $("#bookingMessage").html(response.message);
+            }
+        });
+    });
+</script>
+```
+
+---
+
+## **5️⃣ Summary**
+✅ **Prevents overlapping bookings** by checking time slots.  
+✅ **Enforces 2-hour minimum booking duration**.  
+✅ **Ensures 90-minute gap after each booking**.  
+✅ **Uses AJAX for smooth booking process**.  
+
+🚀 Now, your **boat booking system is smart & efficient!** Let me know if you need any refinements. 😊

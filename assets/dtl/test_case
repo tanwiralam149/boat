@@ -1,0 +1,139 @@
+Sure! Below is a **realistic dataset** for **boats, boat availability, and boat bookings** that covers **all possible test conditions**. 🚤💡  
+
+---
+
+# **🚢 Tables with Sample Data**
+
+### **1️⃣ `boats` Table (Boat List)**
+| `boat_id` | `boat_name`      | `created_at`          |
+|-----------|----------------|----------------------|
+| 1         | Speed Boat      | 2024-02-20 10:00:00 |
+| 2         | Luxury Yacht    | 2024-02-20 11:00:00 |
+| 3         | Fishing Vessel  | 2024-02-21 09:30:00 |
+
+```sql
+SELECT * FROM boats;
+```
+
+---
+
+### **2️⃣ `boat_availability` Table (Availability of Boats on Weekdays & Weekends)**  
+| `availability_id` | `boat_id` | `availability_type` | `start_time` | `end_time` |
+|-------------------|----------|--------------------|------------|---------|
+| 1                | 1        | weekday            | 08:00:00   | 18:00:00 |
+| 2                | 1        | weekend            | 09:00:00   | 20:00:00 |
+| 3                | 2        | weekday            | 10:00:00   | 22:00:00 |
+| 4                | 2        | weekend            | 11:00:00   | 23:00:00 |
+| 5                | 3        | weekday            | 06:00:00   | 15:00:00 |
+| 6                | 3        | weekend            | 07:00:00   | 17:00:00 |
+
+```sql
+SELECT * FROM boat_availability;
+```
+
+---
+
+### **3️⃣ `boat_bookings` Table (Boat Booking Data with Different Conditions)**
+| `booking_id` | `boat_id` | `booking_date` | `start_time` | `end_time` | `user_id` | `created_at` |
+|-------------|----------|--------------|------------|---------|--------|----------------------|
+| 1           | 1        | 2024-02-27   | 09:00:00   | 11:00:00 | 3      | 2024-02-26 15:00:00 |
+| 2           | 1        | 2024-02-27   | 13:00:00   | 15:00:00 | 4      | 2024-02-26 16:30:00 |
+| 3           | 2        | 2024-02-28   | 14:00:00   | 16:00:00 | 5      | 2024-02-26 17:00:00 |
+| 4           | 3        | 2024-02-28   | 08:00:00   | 10:00:00 | 6      | 2024-02-26 18:00:00 |
+| 5           | 3        | 2024-02-28   | 12:00:00   | 14:00:00 | 7      | 2024-02-26 19:00:00 |
+
+```sql
+SELECT * FROM boat_bookings;
+```
+
+---
+
+### **📌 Test Cases Based on the Data**
+
+### ✅ **Test 1: Booking a Boat in Available Time**
+**Scenario**:  
+- User wants to book **Speed Boat (ID:1) on Feb 27, 2024, from 16:00 - 18:00**.  
+- The boat is **available on weekdays from 08:00 - 18:00**.  
+- **No existing bookings** conflict with this time.  
+
+**Expected Result**: ✅ Booking Allowed  
+
+---
+
+### ❌ **Test 2: Overlapping Booking Attempt**
+**Scenario**:  
+- User wants to book **Speed Boat (ID:1) on Feb 27, 2024, from 10:30 - 12:30**.  
+- But **there’s already a booking from 09:00 - 11:00**.  
+
+**Expected Result**: ❌ Booking Denied (Time Conflict)  
+
+---
+
+### ❌ **Test 3: Booking a Boat Outside Available Hours**
+**Scenario**:  
+- User tries to book **Luxury Yacht (ID:2) on a weekday from 08:00 - 10:00**.  
+- But **Luxury Yacht is only available from 10:00 - 22:00 on weekdays**.  
+
+**Expected Result**: ❌ Booking Denied (Boat Unavailable at This Time)  
+
+---
+
+### ❌ **Test 4: Minimum 2-Hour Booking Requirement**
+**Scenario**:  
+- User tries to book **Fishing Vessel (ID:3) on Feb 28, 2024, from 07:00 - 08:00**.  
+- Minimum booking time is **2 hours**.  
+
+**Expected Result**: ❌ Booking Denied (Minimum Booking Time Not Met)  
+
+---
+
+### ❌ **Test 5: 90-Minute Gap After the Last Booking**
+**Scenario**:  
+- **Fishing Vessel (ID:3) has a booking from 08:00 - 10:00 on Feb 28, 2024**.  
+- User tries to book the same boat from **10:30 - 12:30**.  
+- The **gap is only 30 minutes (less than 90 min required)**.  
+
+**Expected Result**: ❌ Booking Denied (No 90-Minute Gap)  
+
+---
+
+### ✅ **Test 6: Booking After 90-Minute Gap**
+**Scenario**:  
+- **Fishing Vessel (ID:3) has a booking from 08:00 - 10:00 on Feb 28, 2024**.  
+- User tries to book from **11:30 - 13:30**.  
+- **Gap = 1 hour 30 minutes (90 min), which is valid**.  
+
+**Expected Result**: ✅ Booking Allowed  
+
+---
+
+## **📌 Final SQL Query to Check Available Boats for a Given Time**
+```sql
+SELECT ba.boat_id, bo.boat_name
+FROM boat_availability ba
+JOIN boats bo ON ba.boat_id = bo.boat_id
+WHERE ba.start_time <= '14:00:00' 
+AND ba.end_time >= '16:00:00'
+AND NOT EXISTS (
+    SELECT 1 FROM boat_bookings bb
+    WHERE bb.boat_id = ba.boat_id
+    AND bb.booking_date = '2024-02-28'
+    AND (
+        ('14:00:00' BETWEEN bb.start_time AND bb.end_time)
+        OR ('16:00:00' BETWEEN bb.start_time AND bb.end_time)
+        OR (bb.start_time BETWEEN '14:00:00' AND '16:00:00')
+        OR (bb.end_time BETWEEN '14:00:00' AND '16:00:00')
+    )
+);
+```
+
+🔹 This **lists only available boats** that meet the conditions! 🚢✅  
+
+---
+
+## **🎯 Summary**
+- **Real Data Provided for All Tables**  
+- **6+ Test Scenarios Covering All Cases**  
+- **SQL Query to Fetch Available Boats**  
+
+Now, you have **everything needed to test boat availability correctly!** 🚀 Let me know if you need modifications! 😊

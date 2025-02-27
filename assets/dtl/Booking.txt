@@ -1,0 +1,37 @@
+1) Boat Booking Management
+
+Users can select a boat and book it for a minimum duration of 2 hours.
+
+System prevents overlapping bookings with a 90-minute buffer before and after each reservation.
+
+
+Backend-
+
+1) Add remove boat
+Boat name
+
+Availability-
+Days - All days, Weekdays, Weekends
+Time- Start time - End time
+
+Active/inactive
+
+2) View manage booking
+
+Front end-
+
+Select boat
+Select date
+Select start time and end time
+Name
+Email 
+Phone
+
+Confirm booking button
+
+
+Boat/index.php
+Boat/admin for login
+
+
+

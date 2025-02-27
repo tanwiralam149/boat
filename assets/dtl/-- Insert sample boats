@@ -1,0 +1,13 @@
+-- Insert sample boats
+INSERT INTO boats (boat_name) VALUES ('Speedboat'), ('Yacht');
+
+-- Insert sample boat availability
+INSERT INTO boat_availability (boat_id, boat_availability, start_time, end_time) VALUES
+(1, 'weekday', '09:00:00', '12:00:00'),
+(1, 'weekend', '14:00:00', '18:00:00'),
+(2, 'weekday', '10:00:00', '13:00:00');
+
+-- Insert sample bookings
+INSERT INTO boat_bookings (boat_id, customer_name, customer_phone, customer_email, booking_date, availability_id, booking_start_time, booking_end_time, booking_status) VALUES
+(1, 'John Doe', '1234567890', 'john@example.com', '2024-03-01', 1, '09:00:00', '12:00:00', 'confirmed'),
+(2, 'Jane Smith', '9876543210', 'jane@example.com', '2024-03-05', 3, '10:00:00', '13:00:00', 'pending');

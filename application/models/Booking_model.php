@@ -39,51 +39,80 @@ class Booking_model extends CI_Model {
    }
 
 
-   public function check_boat_availability($boat_id, $booking_date, $start_time, $end_time) {
-     $day_of_week = date('N', strtotime($booking_date)); // 1 = Monday, 7 = Sunday
-     $availability_type = ($day_of_week >= 6) ? 'weekend' : 'weekday'; // Determine availability type
+public function check_boat_availability($boat_id, $booking_date, $start_time, $end_time) {
+    $day_of_week = date('N', strtotime($booking_date)); // 1 = Monday, 7 = Sunday
+    $availability_type = ($day_of_week >= 6) ? 'weekend' : 'weekday';
 
-     // Check if the boat is already booked
-     $this->db->select('COUNT(*) as total');
-     $this->db->from('boat_bookings');
-     $this->db->where('boat_id', $boat_id);
-     $this->db->where('booking_date', $booking_date);
-     $this->db->where("(
-         (booking_start_time BETWEEN '$start_time' AND '$end_time') 
-         OR (booking_end_time BETWEEN '$start_time' AND '$end_time') 
-         OR ('$start_time' BETWEEN booking_start_time AND booking_end_time)
-         OR ('$end_time' BETWEEN booking_start_time AND booking_end_time)
-     )", NULL, FALSE);
-     $booking_conflict = $this->db->get()->row()->total;
-    
-     // Check if the selected time is within the boat's available schedule
-     $this->db->select('COUNT(*) as total');
-     $this->db->from('boat_availability');
-     $this->db->where('boat_id', $boat_id);
-     $this->db->where('availability_type', $availability_type);
-     $this->db->where('start_time <=', $start_time);
-     $this->db->where('end_time >=', $end_time);
-     $schedule_conflict = $this->db->get()->row()->total;
-    
-     // Ensure 90-minute gap after last booking
-     $this->db->select('booking_end_time');
-     $this->db->from('boat_bookings');
-     $this->db->where('boat_id', $boat_id);
-     $this->db->where('booking_date', $booking_date);
-     $this->db->order_by('booking_end_time', 'DESC');
-     $this->db->limit(1);
-     $last_booking = $this->db->get()->row();
-    
-     if ($last_booking) {
-         $last_end_time = $last_booking->end_time;
-         $time_difference = strtotime($start_time) - strtotime($last_end_time);
-         if ($time_difference < 90 * 60) { // Less than 90 minutes
-             return false;
-         }
-     }
-     //return $this->db->last_query();
-     return ($booking_conflict == 0 && $schedule_conflict > 0);
- }
+    // 🚀 Check if the boat is already booked
+    $this->db->select('COUNT(*) as total');
+    $this->db->from('boat_bookings');
+    $this->db->where('boat_id', $boat_id);
+    $this->db->where('booking_date', $booking_date);
+    $this->db->where("(
+        (booking_start_time BETWEEN '{$start_time}' AND '{$end_time}') 
+        OR (booking_end_time BETWEEN '{$start_time}' AND '{$end_time}') 
+        OR ('{$start_time}' BETWEEN booking_start_time AND booking_end_time)
+        OR ('{$end_time}' BETWEEN booking_start_time AND booking_end_time)
+    )", NULL, FALSE);
+
+    $query1 = $this->db->get();
+    //echo "Booking Conflict Query: " . $this->db->last_query() . "<br>";
+
+    $booking_conflict = ($query1->num_rows() > 0) ? $query1->row()->total : 0;
+
+    if ($booking_conflict > 0) {
+        //echo "🚫 Boat is already booked!";
+        return false;
+    }
+
+    // ✅ Check if the selected time is within the boat's availability
+    $this->db->select('COUNT(*) as total');
+    $this->db->from('boat_availability');
+    $this->db->where('boat_id', $boat_id);
+    $this->db->where('availability_type', $availability_type);
+    $this->db->where('start_time <=', $start_time);
+    $this->db->where('end_time >=', $end_time);
+
+    $query2 = $this->db->get();
+   // echo "Availability Query: " . $this->db->last_query() . "<br>";
+
+    $schedule_conflict = ($query2->num_rows() > 0) ? $query2->row()->total : 0;
+    if ($schedule_conflict == 0) {
+        //echo "🚫 Boat is  available in this schedule!";
+        return true;
+    }
+
+    // ✅ Ensure 90-minute gap after last booking
+    $this->db->select('booking_end_time');
+    $this->db->from('boat_bookings');
+    $this->db->where('boat_id', $boat_id);
+    $this->db->where('booking_date', $booking_date);
+    $this->db->order_by('booking_end_time', 'DESC');
+    $this->db->limit(1);
+
+    $query3 = $this->db->get();
+    //echo "Last Booking Query: " . $this->db->last_query() . "<br>";
+
+    $last_booking = $query3->row();
+    $last_end_time = $last_booking ? $last_booking->booking_end_time : null;
+
+    if ($last_end_time && (strtotime($start_time) - strtotime($last_end_time) < 90 * 60)) {
+       // echo "🚫 90-minute gap required after last booking!";
+        return false;
+    }
+
+    // ✅ Minimum 2-hour booking check
+    $duration = strtotime($end_time) - strtotime($start_time);
+    if ($duration < 2 * 60 * 60) {
+       // echo "🚫 Minimum booking time is 2 hours!";
+        return false;
+    }
+
+    //echo "✅ Boat is available!";
+    return true;
+}
+
+ 
 
  /* Create Boat Booking */
 
