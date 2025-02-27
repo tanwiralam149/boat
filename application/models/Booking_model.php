@@ -17,6 +17,7 @@ class Booking_model extends CI_Model {
          $this->db->join("boat_availability ba","bb.availability_id=ba.id");
          $this->db->order_by("bb.booking_date","desc");
          return $this->db->get()->result_array();
+        // return $this->db->last_query();
     }
    public function delete_booking_data($booking_id){
         $this->db->trans_start();

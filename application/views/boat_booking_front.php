@@ -232,8 +232,8 @@
              var name=$("#customer_name").val();
              var email=$("#customer_email").val();
              var phone=$("#customer_phone").val();
-             var hidden_availability_id=$("#hidden_availability_id").val();
-               // Validate required fields
+             var availability_id=$("#hidden_availability_id").val();
+   
             if (!name || !email || !phone) {
                alert("Please fill in all customer details.");
                return; // Stop execution if validation fails
@@ -255,20 +255,20 @@
                         booking_date:booking_date,
                         start_time:start_time,
                         end_time:end_time,
-                        hidden_availability_id:hidden_availability_id
+                        availability_id:availability_id
                      },
                      dataType: "json",
                      success:function(response){
-         
-                        console.log(response);
                         if (response.success) {
-                              $("#customer_div").hide();
-                             // $("#availabilityMessage").html("<span style='color: green;'>" + response.message + "</span>"); 
+                             $("#customer_div").hide();
+                             $("#checkAvailabilityForm")[0].reset();
+                             $("#addCustomerBookingForm")[0].reset();
+                             $('#booking_start_time').empty();
+                             $('#booking_end_time').empty();
                              toastr.success(response.message);
                          } else {
                              $("#customer_div").show();
                              toastr.error(response.message);
-                            // $("#availabilityMessage").html("<span style='color: red;'>" + response.message + "</span>");
                          }
                      }
                   });

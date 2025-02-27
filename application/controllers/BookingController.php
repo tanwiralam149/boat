@@ -11,6 +11,8 @@ class BookingController extends CI_Controller {
 	public function booking_list()
 	{  
         $data['bookings']=$this->Booking_model->get_all_boat_booking_detail();
+        // print_r($data['bookings']);
+        // exit();
         $this->load->view('inc/header_view');
 		$this->load->view('booking/booking_list',$data);
         $this->load->view('inc/footer_view');

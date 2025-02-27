@@ -74,7 +74,7 @@ class Booking extends CI_Controller {
       $booking_date=$this->input->post('booking_date');
       $start_time=$this->input->post('start_time');
       $end_time=$this->input->post('end_time');
-      $availability_id=$this->input->post('end_time');
+      $availability_id=$this->input->post('availability_id');
         
        $result=$this->Booking_model->create_boat_booking([
                 'customer_name' =>$name,
