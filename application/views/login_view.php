@@ -26,11 +26,11 @@
                     <form method="post" action="<?php echo base_url('do_login'); ?>">
                         <div class="mb-3 text-start">
                             <label for="text" class="form-label">Email address</label>
-                            <input type="text" class="form-control" name="username" id="username" placeholder="Enter your username" required>
+                            <input type="text" class="form-control" name="username" id="username" placeholder="Enter your username" value="admin" required>
                         </div>
                         <div class="mb-3 text-start">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" name="password" id="password" placeholder="Enter your password" required>
+                            <input type="password" class="form-control" name="password" id="password" placeholder="Enter your password" value="admin" required>
                         </div>
                         <!-- <div class="mb-3 text-start">
                             <div class="form-check">

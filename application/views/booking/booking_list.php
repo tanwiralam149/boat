@@ -59,7 +59,6 @@
                                         <?php }}else{ ?>
                                             <tr>
                                                 <td colspan="7">No Records found</td>
-                                              
                                             </tr>
                                         <?php } ?>    
                                           
@@ -105,7 +104,7 @@
                 });
             </script>
 
-<script type="text/javascript">
+    <script type="text/javascript">
       <?php if ($this->session->flashdata('success')): ?>
         toastr.success("<?php echo $this->session->flashdata('success'); ?>");
       <?php elseif ($this->session->flashdata('error')): ?>

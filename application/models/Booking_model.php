@@ -40,11 +40,12 @@ class Booking_model extends CI_Model {
    }
 
 
-public function check_boat_availability($boat_id, $booking_date, $start_time, $end_time) {
+
+   public function check_boat_availability($boat_id, $booking_date, $start_time, $end_time) {
     $day_of_week = date('N', strtotime($booking_date)); // 1 = Monday, 7 = Sunday
     $availability_type = ($day_of_week >= 6) ? 'weekend' : 'weekday';
 
-    // 🚀 Check if the boat is already booked
+    //  Check if the boat is already booked
     $this->db->select('COUNT(*) as total');
     $this->db->from('boat_bookings');
     $this->db->where('boat_id', $boat_id);
@@ -57,16 +58,13 @@ public function check_boat_availability($boat_id, $booking_date, $start_time, $e
     )", NULL, FALSE);
 
     $query1 = $this->db->get();
-    //echo "Booking Conflict Query: " . $this->db->last_query() . "<br>";
-
     $booking_conflict = ($query1->num_rows() > 0) ? $query1->row()->total : 0;
 
     if ($booking_conflict > 0) {
-        //echo "🚫 Boat is already booked!";
-        return false;
+        return false; //  Boat is already booked
     }
 
-    // ✅ Check if the selected time is within the boat's availability
+    //  Check if the selected time is within the boat's availability
     $this->db->select('COUNT(*) as total');
     $this->db->from('boat_availability');
     $this->db->where('boat_id', $boat_id);
@@ -75,43 +73,49 @@ public function check_boat_availability($boat_id, $booking_date, $start_time, $e
     $this->db->where('end_time >=', $end_time);
 
     $query2 = $this->db->get();
-   // echo "Availability Query: " . $this->db->last_query() . "<br>";
-
     $schedule_conflict = ($query2->num_rows() > 0) ? $query2->row()->total : 0;
-    if ($schedule_conflict == 0) {
-        //echo "🚫 Boat is  available in this schedule!";
-        return true;
+   
+
+    // echo $schedule_conflict;
+    if ($schedule_conflict > 0) {
+        return false; //  Boat is not available in this schedule
     }
 
-    // ✅ Ensure 90-minute gap after last booking
-    $this->db->select('booking_end_time');
-    $this->db->from('boat_bookings');
-    $this->db->where('boat_id', $boat_id);
-    $this->db->where('booking_date', $booking_date);
-    $this->db->order_by('booking_end_time', 'DESC');
-    $this->db->limit(1);
 
-    $query3 = $this->db->get();
-    //echo "Last Booking Query: " . $this->db->last_query() . "<br>";
+    // Ensure 90-minute buffer after last booking
+        $this->db->select('booking_end_time');
+        $this->db->from('boat_bookings');
+        $this->db->where('boat_id', $boat_id);
+        $this->db->where('booking_date', $booking_date);
+        $this->db->order_by('booking_end_time', 'DESC');
+        $this->db->limit(1);
 
-    $last_booking = $query3->row();
-    $last_end_time = $last_booking ? $last_booking->booking_end_time : null;
+        $query3 = $this->db->get();
+        $last_booking = $query3->row();
+            // echo $this->db->last_query();
+        if ($last_booking) {
+            $last_end_time = $last_booking->booking_end_time;
+            // Convert time to timestamps for proper comparison
+            $last_end_timestamp = strtotime($last_end_time);
+            $start_timestamp = strtotime($start_time);
+            // Check if the difference is less than 90 minutes
+            if (($start_timestamp - $last_end_timestamp) < (90 * 60)) {
+                return false; //  Less than 90 min gap after last booking
+            }
+        }
 
-    if ($last_end_time && (strtotime($start_time) - strtotime($last_end_time) < 90 * 60)) {
-       // echo "🚫 90-minute gap required after last booking!";
-        return false;
-    }
+        //  Minimum 2-hour booking check
+        $duration = strtotime($end_time) - strtotime($start_time);
+        if ($duration < 2 * 60 * 60) {
+            return false; 
+        }  
 
-    // ✅ Minimum 2-hour booking check
-    $duration = strtotime($end_time) - strtotime($start_time);
-    if ($duration < 2 * 60 * 60) {
-       // echo "🚫 Minimum booking time is 2 hours!";
-        return false;
-    }
-
-    //echo "✅ Boat is available!";
-    return true;
+    return true; //  Boat is available!
 }
+
+
+
+
 
  
 

@@ -10,7 +10,7 @@ class AuthController extends CI_Controller {
         $this->load->model('Auth_model');
 
         if ($this->session->userdata('user_id')) {
-            redirect('dashboard');
+            redirect('add');
         }
     }
 

@@ -24,10 +24,10 @@
                            <div class="card-header">Boat Availability</div>
                         </div>
                         <div class="mb-3 col-md-6">
-                           <div class="mb-3 col-md-3">
+                           <!-- <div class="mb-3 col-md-3">
                               <label for="end_time" class="form-label"></label>
                               <button type="button" class="btn btn-success btn-sm" id="add-availability" style="margin-top:20px;"><i class="fas fa-plus"></i> </button><br><br>
-                           </div>
+                           </div> -->
                         </div>
                      </div>
                      <?php $counter = 1; ?>
@@ -52,10 +52,10 @@
                            <label for="end_time" class="form-label">End Time</label>
                            <input type="text" class="form-control end_time" value="<?php echo $availability['end_time']?>" id="end_time" name="end_time_<?php echo $counter; ?>" placeholder="End Time" required>
                         </div>
-                        <div class="mb-3 col-md-3">
+                        <!-- <div class="mb-3 col-md-3">
                            <label for="end_time" class="form-label"></label>
                            <button type="button" class="btn btn-danger btn-sm remove-availability" data-id="<?php echo $counter; ?>"  style="margin-top:30px;"><i class="fas fa-trash"></i> </button>
-                        </div>
+                        </div> -->
                      </div>
                      <?php $counter++; ?>
                      <?php } } ?>

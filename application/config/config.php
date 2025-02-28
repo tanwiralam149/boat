@@ -24,8 +24,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 //$config['base_url'] = '';
-$config['base_url'] = 'http://localhost/boat/';
-
+//$config['base_url'] = 'http://localhost/boat/';
+$rbd_root  = "http://".$_SERVER['HTTP_HOST'] . str_replace(basename($_SERVER['SCRIPT_NAME']),"",$_SERVER['SCRIPT_NAME']);
+$config['base_url'] = $rbd_root;
 /*
 |--------------------------------------------------------------------------
 | Index File
