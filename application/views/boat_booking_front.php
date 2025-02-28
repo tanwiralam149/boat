@@ -33,7 +33,7 @@
                            <div class="card-body">
                               <h5 class="card-title">Booking Detail</h5>
                               <form  id="checkAvailabilityForm" >
-                                 <input type="hidden" name="hidden_availability_id" id="hidden_availability_id" />
+                                 <input type="text" name="hidden_availability_id" id="hidden_availability_id" />
                                  <div class="row g-2">
                                     <div class="mb-3 col-md-3">
                                        <label for="boat_id" class="form-label">Select Boat</label>
@@ -117,20 +117,17 @@
       <script>
          $(document).ready(function(){
           
-           $("#booking_date").on('change',function(){
+           $("#booking_date,#boat_id").on('change',function(){
               getAvailabilityTime();
            });
-           $("#boat_id").on('change',function(){
-              getAvailabilityTime();
-           });
+         //   $("#boat_id").on('change',function(){
+         //      getAvailabilityTime();
+         //   });
          
             function getAvailabilityTime(){
                  $('#booking_start_time').empty();
                  $('#booking_end_time').empty();
-         
-                 // Manually destroy the timepicker instances
-               //   $('#booking_start_time').timepicker('destroy');
-               //   $('#booking_end_time').timepicker('destroy');
+
                  var bookingDate=$("#booking_date").val();
                  var boatId=$("#boat_id").val();
                  $.ajax({
@@ -139,55 +136,23 @@
                      dataType: "json",
                      data:{bookingDate:bookingDate,boatId:boatId},
                      success: function(response) {
-         
-                       console.log(response);
+                       console.log("response.data,available_slots");
                        if (response.success) {
-                          $("#hidden_availability_id").val(response.data[0].id);
-                         
-                           var start_time=response.data[0].start_time;
-                           var end_time=response.data[0].end_time;
-                           
-                           getBoatBookingTime(start_time,end_time);
-                           
-         
-                        //   $('#booking_start_time').timepicker({
-                        //         timeFormat: 'H:mm p',
-                        //         minTime: response.data[0].start_time, // Set the minimum time
-                        //         maxTime: response.data[0].end_time, // Set the maximum time
-                        //         step: 30 // Set the step to 30 minutes (0.5 hour)
-                        //   });  
-                         
-                        //   $('#booking_end_time').timepicker({
-                        //         timeFormat: 'H:mm p',
-                        //         minTime: response.data[0].start_time, // Set the minimum time
-                        //         maxTime: response.data[0].end_time, // Set the maximum time
-                        //         step: 30 // Set the step to 30 minutes (0.5 hour)
-                        //   });   
+                          $("#hidden_availability_id").val(response.data.availability.id);
+                          var timeSlots=response.data.available_slots;
+                        //  console.log(timeSlots);
+                        timeSlots.forEach(time => {
+                           $('#booking_start_time').append(`<option value="${time}">${time}</option>`);
+                           $('#booking_end_time').append(`<option value="${time}">${time}</option>`);
+                        });
+
+                     
                        } 
                     } 
                  }); 
               }
          
-               function getBoatBookingTime(start_time,end_time){
-                  
-                     // Convert start and end times to minutes (from midnight)
-                     var start_minutes = parseInt(start_time.split(":")[0]) * 60 + parseInt(start_time.split(":")[1]);
-                     var end_minutes = parseInt(end_time.split(":")[0]) * 60 + parseInt(end_time.split(":")[1]);
-                     // Generate the times array dynamically
-                     var times = [];
-                     for (var time = start_minutes; time <= end_minutes; time += 30) {
-                        var hours = Math.floor(time / 60);
-                        var minutes = time % 60;
-                        var timeString = String(hours).padStart(2, '0') + ":" + String(minutes).padStart(2, '0');
-                        times.push(timeString);
-                     }
-         
-                     // Append each time to the dropdown
-                     times.forEach(function(time) {
-                        $("#booking_start_time").append(new Option(time, time));
-                        $("#booking_end_time").append(new Option(time, time));
-                     });
-               }
+       
          
          });
       </script>  

@@ -1,0 +1,93 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Booking extends CI_Controller {
+
+    public function __construct() {
+        parent::__construct();
+    }
+
+    public function get_available_slots() {
+        // Sample data (replace this with your actual data)
+        $data = [
+            "availability" => [
+                "id" => "2",
+                "boat_id" => "1",
+                "availability_type" => "weekdays",
+                "start_time" => "08:00:00",
+                "end_time" => "16:00:00"
+            ],
+            "bookings" => [
+                [
+                    "booking_id" => 1,
+                    "boat_id" => 1,
+                    "booking_date" => "2023-10-14",
+                    "start_time" => "08:00:00",
+                    "end_time" => "10:30:00"
+                ],
+                [
+                    "booking_id" => 2,
+                    "boat_id" => 1,
+                    "booking_date" => "2023-10-14",
+                    "start_time" => "13:00:00",
+                    "end_time" => "15:00:00"
+                ]
+            ]
+        ];
+
+        // Get available time slots with a 90-minute buffer before each booking
+        $available_slots = $this->generate_available_slots($data);
+
+        // Return JSON response
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($available_slots));
+    }
+
+    private function generate_available_slots($data) {
+        $availability = $data['availability'];
+        $bookings = $data['bookings'];
+
+        // Convert start and end times to timestamps
+        $start_time = strtotime($availability['start_time']);
+        $end_time = strtotime($availability['end_time']);
+
+        // Create an array to store booked time slots and buffer times
+        $booked_slots = [];
+
+        // Loop through bookings and add booked slots + buffer times to the array
+        foreach ($bookings as $booking) {
+            $booking_start = strtotime($booking['start_time']);
+            $booking_end = strtotime($booking['end_time']);
+
+            // Add 90-minute buffer before the booking start time
+            $buffer_start = $booking_start - (90 * 60); // 90 minutes in seconds
+            $buffer_end = $booking_start;
+
+            // Add all 30-minute intervals within the buffer range to the booked_slots array
+            for ($time = $buffer_start; $time < $buffer_end; $time += 1800) { // 1800 seconds = 30 minutes
+                $booked_slots[] = date("H:i:s", $time);
+            }
+
+            // Add all 30-minute intervals within the booking range to the booked_slots array
+            for ($time = $booking_start; $time < $booking_end; $time += 1800) { // 1800 seconds = 30 minutes
+                $booked_slots[] = date("H:i:s", $time);
+            }
+        }
+
+        // Generate all possible 30-minute slots between start_time and end_time
+        $all_slots = [];
+        for ($time = $start_time; $time < $end_time; $time += 1800) { // 1800 seconds = 30 minutes
+            $all_slots[] = date("H:i:s", $time);
+        }
+
+        // Remove booked slots (including buffer times) from all slots to get available slots
+        $available_slots = array_diff($all_slots, $booked_slots);
+
+        // Convert the result to an array (array_diff returns an associative array)
+        $available_slots = array_values($available_slots);
+
+        return $available_slots;
+    }
+}
+?>

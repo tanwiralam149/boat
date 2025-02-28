@@ -21,9 +21,9 @@ class BookingControllerFront extends CI_Controller {
         $availability_type=($day_of_week >=6) ?  'weekend' : 'weekdays'; // Determine availability type
         $result=$this->Booking_model->check_availability_type_time_acc_to_date($booking_date,$boat_id);
         if($result){
-            echo json_encode(['data'=>$result,'success'=>true,'message'=>'Data found.','availability_type'=>$availability_type,'date'=>$booking_date,'day_of_week'=>$day_of_week]);
+            echo json_encode(['data'=>$result,'success'=>true,'message'=>'Data found.']);
         }else{
-            echo json_encode(['data'=>[],'success'=>false,'message'=>'Data not found.','availability_type'=>$availability_type,'date'=>$booking_date,'day_of_week'=>$day_of_week]);
+            echo json_encode(['data'=>[],'success'=>false,'message'=>'Data not found.',]);
         }
     }
 

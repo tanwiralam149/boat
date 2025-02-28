@@ -38,7 +38,107 @@ class Booking_model extends CI_Model {
         $this->db->order_by('UNIX_TIMESTAMP(end_time) - UNIX_TIMESTAMP(start_time)', 'DESC');
         $this->db->limit(1); // Limit to 1 row
         $query=$this->db->get("boat_availability");
-        return $query->result_array();
+        $availability_data=$query->row_array();
+
+        if (!$availability_data) {
+            return null; // Return null if no availability record is found
+        }
+
+        // // Query to fetch all bookings for the given boat_id and booking_date
+        $this->db->select('*');
+        $this->db->from('boat_bookings');
+        $this->db->where('boat_id', $boat_id);
+        $this->db->where('booking_date', $booking_date);
+        $bookings_query = $this->db->get();
+        $bookings_data = $bookings_query->result_array(); // Get all bookings
+
+
+
+
+
+             // Convert start and end times to timestamps
+             $start_time = strtotime($availability_data['start_time']);
+             $end_time = strtotime($availability_data['end_time']);
+     
+             // Create an array to store booked time slots
+             $booked_slots = [];
+     
+             // Loop through bookings and add booked slots to the array
+             foreach ($bookings_data as $booking) {
+                 $booking_start = strtotime($booking['booking_start_time']);
+                 $booking_end = strtotime($booking['booking_end_time']);
+     
+                 // Add all 30-minute intervals within the booking range to the booked_slots array
+                 for ($time = $booking_start; $time < $booking_end; $time += 1800) { // 1800 seconds = 30 minutes
+                     $booked_slots[] = date("H:i:s", $time);
+                 }
+             }
+     
+             // Generate all possible 30-minute slots between start_time and end_time
+             $all_slots = [];
+             for ($time = $start_time; $time < $end_time; $time += 1800) { // 1800 seconds = 30 minutes
+                 $all_slots[] = date("H:i:s", $time);
+             }
+     
+             // Remove booked slots from all slots to get available slots
+             $available_slots = array_diff($all_slots, $booked_slots);
+     
+             // Convert the result to an array (array_diff returns an associative array)
+             $available_slots = array_values($available_slots);
+     
+           //  return $available_slots;
+        // Combine availability and bookings data
+        $response = [
+            'availability' => $availability_data,
+            'bookings' => $bookings_data,
+            'available_slots'=>$available_slots
+        ];
+         
+        return $response;
+
+
+         // Query to fetch all bookings for the given boat_id and booking_date
+  /*  $this->db->select('*');
+    $this->db->from('boat_bookings');
+    $this->db->where('boat_id', $boat_id);
+    $this->db->where('booking_date', $booking_date);
+    $this->db->order_by('booking_start_time', 'ASC'); // Order bookings by start_time
+    $bookings_query = $this->db->get();
+
+    $bookings_data = $bookings_query->result_array(); // Get all bookings
+
+    // Initialize new_start_time and new_end_time with availability times
+    $new_start_time = $availability_data['start_time'];
+    $new_end_time = $availability_data['end_time'];
+
+    // Adjust availability based on bookings and 90-minute buffer
+    foreach ($bookings_data as $booking) {
+        $booking_start = strtotime($booking['booking_start_time']);
+        $booking_end = strtotime($booking['booking_end_time']);
+        $buffer_end = $booking_end + (90 * 60); // Add 90 minutes buffer
+
+        // If booking overlaps with current availability, adjust new_start_time and new_end_time
+        if ($booking_start < strtotime($new_end_time) && $booking_end > strtotime($new_start_time)) {
+            if ($booking_start <= strtotime($new_start_time)) {
+                $new_start_time = date('H:i:s', $buffer_end); // Move start_time after buffer
+            } else {
+                $new_end_time = date('H:i:s', $booking_start); // Move end_time before booking
+            }
+        }
+
+    }
+
+    // Add new_start_time and new_end_time to availability data
+    $availability_data['new_start_time'] = $new_start_time;
+    $availability_data['new_end_time'] = $new_end_time;
+
+    // Combine availability and bookings data
+    $response = [
+        'availability' => $availability_data,
+        'bookings' => $bookings_data
+    ];
+
+    return $response;  */
    }
 
 
