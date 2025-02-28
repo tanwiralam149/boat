@@ -118,8 +118,8 @@ class BoatController extends CI_Controller {
         $counter = $this->input->post('counter');
         $availability_data = [];
 
-        $check_boat=$this->Boat_model->check_boat_exits($boat_id);
-        if(!empty($check_boat)){
+        // $check_boat=$this->Boat_model->check_boat_exits($boat_id);
+        // if(!empty($check_boat)){
             for($i=1;$i<=$counter;$i++){
                 if (isset($_POST['availability_type_' . $i])) {
                     $availability_data[] = [
@@ -141,9 +141,9 @@ class BoatController extends CI_Controller {
             }else{
                 $this->session->set_flashdata('error', 'Failed to update boat.');
             }
-        }else{
-            $this->session->set_flashdata('error', 'Invalid data.');
-        }
+        // }else{
+        //     $this->session->set_flashdata('error', 'Invalid data.');
+        // }
     
         redirect('list');
     }

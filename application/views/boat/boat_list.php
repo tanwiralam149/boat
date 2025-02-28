@@ -29,7 +29,7 @@
                                         <tbody>
                                         <?php if (!empty($all_boats)){ ?>
                                         <?php foreach($all_boats as $key=>$boat) {  ?>
-                                            <tr>
+                                            <tr >
                                                 <td rowspan="<?php echo count($boat['availabilities']) ?: 1; ?>"><?php echo $key+1; ?></td>
                                                 <td rowspan="<?php echo count($boat['availabilities']) ?: 1; ?>"><?php echo $boat['boat_name']; ?></td>
                                                 <?php  foreach($boat['availabilities'] as $index =>$availabilitie){  ?>
