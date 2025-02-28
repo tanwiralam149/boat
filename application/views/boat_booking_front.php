@@ -201,7 +201,7 @@
              if (boat_id && booking_date && start_time && end_time) {
                  $.ajax({
                      type: "POST",
-                     url: "<?= base_url('booking/check_boat_availability'); ?>",
+                     url: "<?= base_url('BookingControllerFront/check_boat_availability'); ?>",
                      data: { boat_id: boat_id, booking_date: booking_date, start_time: start_time, end_time: end_time },
                      dataType: "json",
                      success: function(response) {
@@ -246,7 +246,7 @@
          
                  $.ajax({
                      type:"POST",
-                     url:"<?php echo base_url('booking/create_boat_booking')?>",
+                     url:"<?php echo base_url('BookingControllerFront/create_boat_booking')?>",
                      data:{
                         name:name,
                         email:email,

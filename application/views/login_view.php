@@ -22,7 +22,7 @@
         <p style="color: red;"><?php echo $this->session->flashdata('error'); ?></p>
     <?php endif; ?>
                     </div>
-                    <h6 class="mb-4 text-muted">Admin Login to your account</h6>
+                    <h2 class="mb-4 text-muted">Admin Login </h2>
                     <form method="post" action="<?php echo base_url('do_login'); ?>">
                         <div class="mb-3 text-start">
                             <label for="text" class="form-label">Email address</label>

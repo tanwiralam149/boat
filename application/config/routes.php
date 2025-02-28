@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-$route['default_controller'] = 'Booking';
+$route['default_controller'] = 'BookingControllerFront';
 
 $route['admin'] = 'AuthController/login';
 $route['do_login'] = 'AuthController/do_login';
@@ -19,6 +19,6 @@ $route['update']='BoatController/update_boat';
 $route['booking/list']='BookingController/booking_list';
 $route['booking/delete']='BookingController/booking_delete';
 /*Booking for Frontend */
-$route['check-availability-type-time-acc-to-date']='Booking/check_availability_type_time_acc_to_date';
+$route['check-availability-type-time-acc-to-date']='BookingControllerFront/check_availability_type_time_acc_to_date';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

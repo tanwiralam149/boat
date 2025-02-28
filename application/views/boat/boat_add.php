@@ -15,26 +15,28 @@
                      <div class="row g-2">
                         <div class="mb-3 col-md-6">
                            <label for="boat_name" class="form-label">Boat Name</label>
-                           <input type="text" class="form-control" name="boat_name" placeholder="Enter Boat Name" required>
+                           <input type="text" class="form-control" id="boat_name" name="boat_name" placeholder="Enter Boat Name" required>
+                           <div id="boatMessage"></div>
                         </div>
+                        
                      </div>
                      <div class="row g-2">
                         <div class="card-header">Boat Availability</div>
                         <div class="mb-3 col-md-3">
-                           <label for="availability_type" class="form-label">Select Availability</label>
-                           <select name="availability_type_0" class="form-select" required>
+                           <label for="availability_type_0" class="form-label">Select Availability</label>
+                           <select name="availability_type_0" id="availability_type_0" class="form-select" required>
                               <option value="" >Select Availability</option>
-                              <option value="weekend">Weekend</option>
                               <option value="weekdays">Weekdays</option>
+                              <option value="weekends">Weekends</option>
                            </select>
                         </div>
                         <div class="mb-3 col-md-3">
-                           <label for="start_time" class="form-label">Start Time</label>
+                           <label for="start_time_0" class="form-label">Start Time</label>
                            <input type="text" class="form-control start_time" name="start_time_0" 
                               id="start_time" placeholder="Start Time" required>
                         </div>
                         <div class="mb-3 col-md-3">
-                           <label for="end_time" class="form-label">End Time</label>
+                           <label for="end_time_0" class="form-label">End Time</label>
                            <input type="text" class="form-control end_time" id="end_time" name="end_time_0" placeholder="End Time" required>
                         </div>
                         <div class="mb-3 col-md-3">
@@ -47,7 +49,7 @@
                      <div class="row g-2" style="margin-top:30px;">
                         <div class="mb-3 col-md-9"></div>
                         <div class="mb-3 col-md-2">
-                           <button type="submit" class="btn btn-primary"> Submit</button>
+                           <button type="submit" class="btn btn-primary" id="addBoat"> Submit</button>
                         </div>
                      </div>
                   </form>
@@ -60,8 +62,31 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- jQuery Timepicker JS -->
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script> -->
+
+
 <script>
    $(document).ready(function() {
+      $("#boat_name").on("keyup",function(){
+         $("#boatMessage").html('');
+         var boat_name=$("#boat_name").val();
+         //alert(boat_name)
+          $.ajax({
+              type:"POST",
+              url:"<?php echo base_url('BoatController/check_boat_exists') ?>",
+              data:{boat_name:boat_name},
+              dataType:"json",
+              success:function(response){
+               console.log(response);
+                  if(response.success){
+                     $("#boatMessage").html("<span style='color: red;'>Boat name already exists!</span>");
+                     $("#addBoat").prop('disabled', true);
+                  }else{
+                     $("#addBoat").prop('disabled', false);
+                  }
+              }
+          })
+      });
+
      $('.start_time').timepicker({
          timeFormat: 'H:mm p',
          interval: 30,
@@ -93,30 +118,31 @@
      $("#add-availability").click(function(){
         counter++;
        // alert(counter);
-        if(counter < 2){
+       // if(counter < 2){
          let newAvailability=
         `            <div class="row" id="add_${counter}">
                      <div class="mb-3 col-md-3">
-                           <label for="availability_type" class="form-label">Select Availability</label>
-                           <select name="availability_type_${counter}" class="form-select" required>
+                           <label for="availability_type_${counter}" class="form-label">Select Availability</label>
+                           <select name="availability_type_${counter}" id="availability_type_${counter}" class="form-select" required>
                               <option value="" >Select Availability</option>
-                              <option value="weekend">Weekend</option>
-                              <option value="weekdays">Weekdays</option>
+                               <option value="weekdays">Weekdays</option>
+                               <option value="weekends">Weekends</option>
+                             
                            </select>
                         </div>
                         <div class="mb-3 col-md-3">
-                           <label for="start_time" class="form-label">Start Time</label>
+                           <label for="start_time_${counter}" class="form-label">Start Time</label>
                            <input type="text" class="form-control start_time" name="start_time_${counter}" 
                               id="start_time_${counter}" placeholder="Start Time" required>
                         </div>
                         <div class="mb-3 col-md-3">
-                           <label for="end_time" class="form-label">End Time</label>
+                           <label for="end_time_${counter}" class="form-label">End Time</label>
                            <input type="text" class="form-control end_time" id="end_time_${counter}" name="end_time_${counter}" placeholder="End Time" required>
                         </div>
                         <div class="mb-3 col-md-3">
-                        <label for="end_time" class="form-label"></label>
+                        <label for="id_${counter}" class="form-label"></label>
                         
-                        <button type="button" class="btn btn-danger btn-sm remove-availability" data-id="${counter}"  style="margin-top:30px;"><i class="fas fa-trash"></i> </button>
+                        <button type="button" id="id_${counter}" class="btn btn-danger btn-sm remove-availability" data-id="${counter}"  style="margin-top:30px;"><i class="fas fa-trash"></i> </button>
                         </div>
                          </div>
         `;
@@ -146,7 +172,7 @@
                 dropdown: true,
                 scrollbar: true
             });
-        }
+      //  }
        
      });
    

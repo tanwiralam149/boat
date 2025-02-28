@@ -31,7 +31,7 @@ class Booking_model extends CI_Model {
    public function check_availability_type_time_acc_to_date($booking_date,$boat_id){
         //Boat Availability Type from Date
         $day_of_week=date("N",strtotime($booking_date)); // 1 = Monday, 7 = Sunday
-        $availability_type=($day_of_week >=6) ?  'weekend' : 'weekdays'; // Determine availability type
+        $availability_type=($day_of_week >=6) ?  'weekends' : 'weekdays'; // Determine availability type
          
         $this->db->where("boat_id",$boat_id);
         $this->db->where("availability_type",$availability_type);
@@ -43,7 +43,7 @@ class Booking_model extends CI_Model {
 
    public function check_boat_availability($boat_id, $booking_date, $start_time, $end_time) {
     $day_of_week = date('N', strtotime($booking_date)); // 1 = Monday, 7 = Sunday
-    $availability_type = ($day_of_week >= 6) ? 'weekend' : 'weekday';
+    $availability_type = ($day_of_week >= 6) ? 'weekends' : 'weekdays';
 
     //  Check if the boat is already booked
     $this->db->select('COUNT(*) as total');

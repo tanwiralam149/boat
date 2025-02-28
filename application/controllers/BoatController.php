@@ -10,11 +10,6 @@ class BoatController extends CI_Controller {
 	public function boat_list()
 	{  
         $data['all_boats']=$this->Boat_model->get_all_boats_with_availability();
-        
-        // echo "<pre>";
-        // print_r($data['all_boats']);
-      
-
         $this->load->view('inc/header_view');
 		$this->load->view('boat/boat_list',$data);
         $this->load->view('inc/footer_view');
@@ -28,7 +23,20 @@ class BoatController extends CI_Controller {
 	}
 
 
- 
+    public function check_boat_exists(){
+         $boat_name=$this->input->post('boat_name');
+         if ($this->Boat_model->boat_exists($boat_name)) {
+            $response = array(
+                'success' => true,
+            );
+        } else {
+            $response = array(
+                'success' => false,
+            );
+        }
+
+        echo json_encode($response);
+    }
     public function store(){
         $this->form_validation->set_rules('boat_name', 'Boat Name', 'required|trim|min_length[3]');
         if ($this->form_validation->run() == FALSE) {
@@ -87,6 +95,10 @@ class BoatController extends CI_Controller {
 
     public function edit($id){
         $data['boat']= $this->Boat_model->get_boat_with_availability($id);
+        // echo "<pre>";
+        // echo count($data['boat']['availabilities']);
+        // print_r($data['boat']);
+        // exit();
         if($data['boat']){
             $this->load->view('inc/header_view');
             $this->load->view('boat/boat_edit',$data);
@@ -106,18 +118,22 @@ class BoatController extends CI_Controller {
         $counter = $this->input->post('counter');
         $availability_data = [];
 
-        // $check_boat=$this->Boat_model->check_boat_exits($boat_id);
-        // if(!empty($check_boat)){
+        $check_boat=$this->Boat_model->check_boat_exits($boat_id);
+        if(!empty($check_boat)){
             for($i=1;$i<=$counter;$i++){
                 if (isset($_POST['availability_type_' . $i])) {
                     $availability_data[] = [
-                        'availability_type' => $this->input->post('availability_type_' . $i),
-                        'start_time'        => $this->input->post('start_time_' . $i),
-                        'end_time'          => $this->input->post('end_time_' . $i),
-                        'boat_id'          => $boat_id,
+                        'boat_availability_id'=>$this->input->post('boat_availability_id_'.$i),
+                        'availability_type' => $this->input->post('availability_type_'.$i),
+                        'start_time'        => $this->input->post('start_time_'.$i),
+                        'end_time'          => $this->input->post('end_time_'.$i),
+                        'boat_id'          =>  $boat_id,
                     ];
                 }
             }
+            // echo "<pre>";
+            // print_r($availability_data);
+            // exit();
     
             $result = $this->Boat_model->update_boat_with_availability($boat_name,$boat_id,$availability_data);
             if($result){
@@ -125,9 +141,9 @@ class BoatController extends CI_Controller {
             }else{
                 $this->session->set_flashdata('error', 'Failed to update boat.');
             }
-        // }else{
-        //     $this->session->set_flashdata('error', 'Invalid data.');
-        // }
+        }else{
+            $this->session->set_flashdata('error', 'Invalid data.');
+        }
     
         redirect('list');
     }

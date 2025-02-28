@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Booking extends CI_Controller {
+class BookingControllerFront extends CI_Controller {
 
     public function __construct() {
         parent::__construct();
@@ -51,9 +51,7 @@ class Booking extends CI_Controller {
         if($hours < 2 ){
             echo json_encode(['success' => false, 'message' => 'Minimum 2-hour booking duration ','hours'=>$hours]);
         }else{
-                  
             $is_available = $this->Booking_model->check_boat_availability($boat_id, $booking_date, $start_time, $end_time);
-
             if ($is_available) {
                 echo json_encode(['success' =>true, 'message' => 'Boat is available for booking.','hours'=>$hours]);
             } else {

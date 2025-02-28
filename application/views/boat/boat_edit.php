@@ -24,10 +24,14 @@
                            <div class="card-header">Boat Availability</div>
                         </div>
                         <div class="mb-3 col-md-6">
-                           <!-- <div class="mb-3 col-md-3">
+                          
+                          
+                           
+                           <div class="mb-3 col-md-3">
                               <label for="end_time" class="form-label"></label>
                               <button type="button" class="btn btn-success btn-sm" id="add-availability" style="margin-top:20px;"><i class="fas fa-plus"></i> </button><br><br>
-                           </div> -->
+                           </div>
+                       
                         </div>
                      </div>
                      <?php $counter = 1; ?>
@@ -35,12 +39,15 @@
                         if($boat['availabilities']){
                           foreach($boat['availabilities'] as $availability){ ?>
                      <div class="row g-2" id="add_<?php echo $counter; ?>">
+                     <input type="hidden" class="form-control" name="boat_availability_id_<?php echo $counter; ?>" 
+                     value="<?php echo $availability['id']; ?>">
                         <div class="mb-3 col-md-3">
                            <label for="availability_type" class="form-label">Select Availability</label>
                            <select name="availability_type_<?php echo $counter; ?>" class="form-select" required>
                               <option value="" >Select Availability</option>
-                              <option value="weekend" <?php echo $availability['availability_type']=='weekend' ? 'selected' :'' ?>>Weekend</option>
                               <option value="weekdays" <?php echo $availability['availability_type']=='weekdays' ? 'selected' :'' ?>>Weekdays</option>
+                              <option value="weekends" <?php echo $availability['availability_type']=='weekends' ? 'selected' :'' ?>>Weekends</option>
+                         
                            </select>
                         </div>
                         <div class="mb-3 col-md-3">
@@ -52,10 +59,10 @@
                            <label for="end_time" class="form-label">End Time</label>
                            <input type="text" class="form-control end_time" value="<?php echo $availability['end_time']?>" id="end_time" name="end_time_<?php echo $counter; ?>" placeholder="End Time" required>
                         </div>
-                        <!-- <div class="mb-3 col-md-3">
+                        <div class="mb-3 col-md-3">
                            <label for="end_time" class="form-label"></label>
                            <button type="button" class="btn btn-danger btn-sm remove-availability" data-id="<?php echo $counter; ?>"  style="margin-top:30px;"><i class="fas fa-trash"></i> </button>
-                        </div> -->
+                        </div>
                      </div>
                      <?php $counter++; ?>
                      <?php } } ?>
@@ -117,8 +124,9 @@
                            <label for="availability_type" class="form-label">Select Availability</label>
                            <select name="availability_type_${counter}" class="form-select" required>
                               <option value="" >Select Availability</option>
-                              <option value="weekend">Weekend</option>
-                              <option value="weekdays">Weekdays</option>
+                                <option value="weekdays">weekdays</option>
+                                <option value="weekends">Weekends</option>
+                            
                            </select>
                         </div>
                         <div class="mb-3 col-md-3">

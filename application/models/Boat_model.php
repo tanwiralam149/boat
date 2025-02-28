@@ -56,14 +56,15 @@ class Boat_model extends CI_Model {
         $this->db->trans_start(); // Start transaction
 
          // Insert into boats table
-         $this->db->insert('boats', ['boat_name' => $boat_name]);
+         $this->db->insert('boats', ['boat_name' => $boat_name,'created_at'=>date('Y-m-d h:i:s')]);
          $boat_id = $this->db->insert_id(); // Get last inserted ID
- 
+       
          // Insert availability data
          foreach ($availability_data as $availability) {
+            $availability_type = $availability['availability_type'];
              $data = [
                  'boat_id'          => $boat_id,
-                 'availability_type' => $availability['availability_type'],
+                 'availability_type' =>$availability_type,
                  'start_time'       => $availability['start_time'],
                  'end_time'         => $availability['end_time']
              ];
@@ -96,14 +97,33 @@ class Boat_model extends CI_Model {
         $this->db->trans_start();
         //Boat Update Boat
         $this->db->where('id',$boat_id);
-        $this->db->update('boats',['boat_name'=>$boat_name]);
+        $this->db->update('boats',['boat_name'=>$boat_name,'updated_at'=>date('Y-m-d h:i:s')]);
         //Delete Old Availability
-        $this->db->where('boat_id',$boat_id);
-        $this->db->delete('boat_availability');
-        //Insert New Availability
+        // $this->db->where('boat_id',$boat_id);
+        // $this->db->delete('boat_availability');
+        //Insert New Availability and Update Old Availability
         
         foreach ($availability_data as $data) {
-            $this->db->insert('boat_availability', $data);
+            if($data['boat_availability_id']==""){
+                $insert_data=array(
+                    'availability_type' =>$data['availability_type'],
+                    'start_time' =>$data['start_time'],
+                    'end_time' =>$data['end_time'],
+                    'boat_id' =>$data['boat_id'],
+                );
+                $this->db->insert('boat_availability', $insert_data);
+            }else{
+                $update_data=array(
+                    'id' =>$data['boat_availability_id'],
+                    'availability_type' =>$data['availability_type'],
+                    'start_time' =>$data['start_time'],
+                    'end_time' =>$data['end_time'],
+                    'boat_id' =>$data['boat_id'],
+                );
+                $this->db->where("id",$data['boat_availability_id']);
+                $this->db->update('boat_availability', $update_data);
+            }
+          
         }
         $this->db->trans_complete(); // Complete transaction
         return $this->db->trans_status(); // Return transaction status (TRUE or FALSE)
